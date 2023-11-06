@@ -10,6 +10,7 @@ import (
 	"github.com/xcheng85/session-monitor-k8s/internal/module"
 	"github.com/xcheng85/session-monitor-k8s/internal/worker"
 	"github.com/xcheng85/session-monitor-k8s/k8s"
+	"github.com/xcheng85/session-monitor-k8s/pod"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 )
@@ -35,6 +36,7 @@ func newIocContainer() (*IocContainer, error) {
 			return config.NewViperConfig("./dummy.yaml", []string{os.Getenv("CONFIG_PATH")}, logger)
 		})
 	err = container.Provide(k8s.NewK8sModule, dig.Name("k8s"))
+	err = container.Provide(pod.NewPodMonitoringModule, dig.Name("pod"))
 	err = container.Provide(newMux)
 	err = container.Provide(newModuleContext)
 	err = container.Provide(worker.NewWorkerSyncer)
@@ -42,10 +44,11 @@ func newIocContainer() (*IocContainer, error) {
 		dig.In
 		ModuleContext module.IModuleContext
 		K8s           module.Module `name:"k8s"`
+		Pod           module.Module `name:"pod"`
 		Mux           *chi.Mux
 		WorkerSyncer  worker.IWorkerSyncer
 	}) *CompositionRoot {
-		root := newCompositionRoot(p.Mux, p.ModuleContext, p.K8s, p.WorkerSyncer)
+		root := newCompositionRoot(p.Mux, p.ModuleContext, p.WorkerSyncer, p.K8s, p.Pod)
 		root.startupModules()
 		return root
 	})

@@ -27,11 +27,11 @@ type CompositionRoot struct {
 	mux          *chi.Mux
 }
 
-func newCompositionRoot(mux *chi.Mux, moduleCtx module.IModuleContext, k8s module.Module, workerSyncer worker.IWorkerSyncer) *CompositionRoot {
+func newCompositionRoot(mux *chi.Mux, moduleCtx module.IModuleContext, workerSyncer worker.IWorkerSyncer, modules ...module.Module) *CompositionRoot {
 	return &CompositionRoot{
 		mux:          mux,
 		moduleCtx:    moduleCtx,
-		modules:      []module.Module{k8s},
+		modules:      modules, // variadic to slice
 		workerSyncer: workerSyncer,
 	}
 }
