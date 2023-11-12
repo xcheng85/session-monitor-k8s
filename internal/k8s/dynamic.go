@@ -5,7 +5,9 @@ import (
 	"errors"
 
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
+	"go.uber.org/dig"
 	"go.uber.org/zap"
+
 	// v1 "k8s.io/api/core/v1"
 	// "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	// "k8s.io/apimachinery/pkg/runtime"
@@ -18,11 +20,11 @@ import (
 )
 
 type k8sDynamicInformer struct {
-	logger    *zap.Logger
-	config    config.IConfig
-	informer  cache.SharedIndexInformer
-	ctx       context.Context
-	handler   IK8sEventHandler
+	logger   *zap.Logger
+	config   config.IConfig
+	informer cache.SharedIndexInformer
+	ctx      context.Context
+	handler  IK8sEventHandler
 }
 
 func (informer *k8sDynamicInformer) Run() {
@@ -35,8 +37,19 @@ func (informer *k8sDynamicInformer) Run() {
 	informer.informer.Run(informer.ctx.Done())
 }
 
-func NewK8sDynamicInformer(ctx context.Context, logger *zap.Logger, config config.IConfig, handler IK8sEventHandler) (IK8sInformer, error) {
-	informer, err := newDynamicInformer(ctx, config)
+type K8sInformerFilter struct {
+	dig.In
+	Resource string `name:"k8s_resource"`
+}
+
+func NewK8sDynamicInformer(
+	ctx context.Context,
+	logger *zap.Logger,
+	config config.IConfig,
+	handler IK8sEventHandler,
+	filter K8sInformerFilter,
+) (IK8sInformer, error) {
+	informer, err := newDynamicInformer(ctx, config, filter.Resource)
 	if err != nil {
 		return nil, err
 	}
@@ -50,9 +63,8 @@ func NewK8sDynamicInformer(ctx context.Context, logger *zap.Logger, config confi
 	}, nil
 }
 
-func newDynamicInformer(ctx context.Context, config config.IConfig) (cache.SharedIndexInformer, error) {
+func newDynamicInformer(ctx context.Context, config config.IConfig, resource string) (cache.SharedIndexInformer, error) {
 	kubeConfig := config.Get("app.kube_config").(string)
-	resource := "pods"
 	namespace := config.Get("app.pod_namespace").(string)
 	var clusterConfig *rest.Config
 	var err error

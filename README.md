@@ -48,3 +48,18 @@ mkdir -p session-monitor
 cd session-monitor
 touch main.go app.go config.yaml dummy.yaml
 ```
+
+## Build
+
+```shell
+make build-amd64
+```
+
+## Run
+```shell
+# in terminal #1
+docker stop ab1cf48a45b2cbfd6b961c9b3e0a36b73d357f913bd369e6aea0c7ed241fa688
+docker rm ab1cf48a45b2cbfd6b961c9b3e0a36b73d357f913bd369e6aea0c7ed241fa688
+docker run --name=redis -p 6379:6379 redis:6.2.7
+
+```

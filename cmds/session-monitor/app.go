@@ -3,17 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
+	"github.com/xcheng85/session-monitor-k8s/internal/ddd"
 	"github.com/xcheng85/session-monitor-k8s/internal/module"
+	"github.com/xcheng85/session-monitor-k8s/internal/repository"
 	"github.com/xcheng85/session-monitor-k8s/internal/worker"
 	_ "go.uber.org/dig"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"net/http"
-	"time"
 )
 
 // composition root
@@ -106,16 +109,21 @@ func newContext() context.Context {
 }
 
 type ModuleContext struct {
-	mux    *chi.Mux
-	logger *zap.Logger
-	config config.IConfig
+	mux             *chi.Mux
+	logger          *zap.Logger
+	config          config.IConfig
+	kvRepository    repository.IKVRepository
+	eventDispatcher ddd.IEventDispatcher[ddd.IEvent]
 }
 
-func newModuleContext(mux *chi.Mux, logger *zap.Logger, config config.IConfig) module.IModuleContext {
+func newModuleContext(mux *chi.Mux, logger *zap.Logger, config config.IConfig,
+	kvRepository repository.IKVRepository, eventDispatcher ddd.IEventDispatcher[ddd.IEvent]) module.IModuleContext {
 	return &ModuleContext{
 		mux,
 		logger,
 		config,
+		kvRepository,
+		eventDispatcher,
 	}
 }
 
@@ -129,4 +137,12 @@ func (r *ModuleContext) Logger() *zap.Logger {
 
 func (r *ModuleContext) Config() config.IConfig {
 	return r.config
+}
+
+func (r *ModuleContext) KvRepository() repository.IKVRepository {
+	return r.kvRepository
+}
+
+func (r *ModuleContext) EventDispatcher() ddd.IEventDispatcher[ddd.IEvent] {
+	return r.eventDispatcher
 }

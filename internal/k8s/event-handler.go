@@ -9,5 +9,3 @@ type IK8sEventHandler interface {
 	OnUpdateObject(oldObj, newObj interface{})
 	OnDeleteObject(obj interface{})
 }
-
-

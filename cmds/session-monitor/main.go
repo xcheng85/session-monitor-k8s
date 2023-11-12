@@ -6,8 +6,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
+	"github.com/xcheng85/session-monitor-k8s/internal/ddd"
 	"github.com/xcheng85/session-monitor-k8s/internal/logger"
 	"github.com/xcheng85/session-monitor-k8s/internal/module"
+	"github.com/xcheng85/session-monitor-k8s/internal/repository"
 	"github.com/xcheng85/session-monitor-k8s/internal/worker"
 	"github.com/xcheng85/session-monitor-k8s/k8s"
 	"github.com/xcheng85/session-monitor-k8s/pod"
@@ -40,6 +42,8 @@ func newIocContainer() (*IocContainer, error) {
 	err = container.Provide(newMux)
 	err = container.Provide(newModuleContext)
 	err = container.Provide(worker.NewWorkerSyncer)
+	err = container.Provide(repository.NewRedisRepository)
+	err = container.Provide(ddd.NewEventDispatcher[ddd.IEvent])
 	err = container.Provide(func(p struct {
 		dig.In
 		ModuleContext module.IModuleContext
@@ -47,10 +51,14 @@ func newIocContainer() (*IocContainer, error) {
 		Pod           module.Module `name:"pod"`
 		Mux           *chi.Mux
 		WorkerSyncer  worker.IWorkerSyncer
-	}) *CompositionRoot {
+	}) (*CompositionRoot, error) {
 		root := newCompositionRoot(p.Mux, p.ModuleContext, p.WorkerSyncer, p.K8s, p.Pod)
-		root.startupModules()
-		return root
+		err := root.startupModules()
+		if err == nil {
+			return root, nil
+		} else {
+			return nil, err
+		}
 	})
 	return &IocContainer{
 		container,

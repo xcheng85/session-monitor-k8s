@@ -15,6 +15,10 @@ func (s *ViperConfig) Get(key string) any {
 	return viper.Get(key)
 }
 
+func (s *ViperConfig) Set(key string, value any) {
+	viper.Set(key, value)
+}
+
 func extractPath(path string) (dir string, filename string, filetype string) {
 	dir, file := filepath.Split(path)
 	splitR := strings.Split(file, ".")
