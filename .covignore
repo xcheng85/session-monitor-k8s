@@ -4,3 +4,6 @@ github.com/xcheng85/session-monitor-k8s/internal/ddd/mock_IEventDispatcher.go
 github.com/xcheng85/session-monitor-k8s/internal/ddd/mock_IEventHandler.go
 github.com/xcheng85/session-monitor-k8s/internal/ddd/mock_IEventPublisher.go
 github.com/xcheng85/session-monitor-k8s/internal/ddd/mock_IEventSubscriber.go
+github.com/xcheng85/session-monitor-k8s/internal/k8s/dynamic.go
+github.com/xcheng85/session-monitor-k8s/internal/module/mock_IModuleContext.go
+github.com/xcheng85/session-monitor-k8s/internal/repository/mock_IKVRepository.go

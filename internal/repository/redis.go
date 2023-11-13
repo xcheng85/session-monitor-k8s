@@ -73,7 +73,6 @@ func (s *redisRepository) AddStreamEvent(ctx context.Context, streamKey string, 
 		ID:     "*",
 		Values: payload,
 	})
-
 	return status.Result()
 }
 
@@ -90,11 +89,11 @@ func (s *redisRepository) AddToUnsortedSet(ctx context.Context, UnsortedSetKey s
 	})
 	if err != nil {
 		return 0, err
-	} 
-	if (len(cmds) > 0) {
+	}
+	if len(cmds) > 0 {
 		lastCmd := cmds[len(cmds)-1]
 		numKeyAdded := lastCmd.(*redis.IntCmd).Val()
-		s.logger.Sugar().Infof("numKeyAdded: %d",numKeyAdded)
+		s.logger.Sugar().Infof("numKeyAdded: %d", numKeyAdded)
 		return numKeyAdded, nil
 	}
 	return 0, nil
