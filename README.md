@@ -58,9 +58,21 @@ make build-amd64
 ## Run
 ```shell
 # in terminal #1
-export CONTAINER_ID=a3d25b1e796af4351653b0f5885a351a21a8de2b1bc0c8cd0711399a248be78b
+export CONTAINER_ID=
 docker stop $CONTAINER_ID
 docker rm $CONTAINER_ID
 docker run --name=redis -p 6379:6379 redis:6.2.7
 
+# in terminal #2
+make run
+```
+
+## Testing
+```shell
+export CONFIG_PATH=./cmds/session-monitor/config.yaml
+go test -v  -covermode=count -coverprofile=coverage.out ./...
+grep -v -E -f .covignore coverage.out > coverage.filtered.out
+mv coverage.filtered.out coverage.out
+go tool cover -html coverage.out -o coverage.html
+gocover-cobertura < coverage.out > coverage.xml
 ```

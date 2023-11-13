@@ -22,6 +22,7 @@ type IEventSubscriber[T IEvent] interface {
 
 // dispatcher needs to subscribe and publish both.
 // he can control the event flow with business logic
+//
 //go:generate mockery --name IEventDispatcher
 type IEventDispatcher[T IEvent] interface {
 	IEventPublisher[T]
