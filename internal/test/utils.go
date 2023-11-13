@@ -4,7 +4,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -39,4 +41,8 @@ type MockHttpHandler struct {
 // DoSomething is a method on MyMockedObject that implements some interface
 func (m *MockHttpHandler) ServeHTTP(http.ResponseWriter, *http.Request) {
 	return
+}
+
+func GetUnexportedField(field reflect.Value) interface{} {
+	return reflect.NewAt(field.Type(), unsafe.Pointer(field.UnsafeAddr())).Elem().Interface()
 }

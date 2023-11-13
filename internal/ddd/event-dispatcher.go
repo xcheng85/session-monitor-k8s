@@ -5,22 +5,24 @@ import (
 	"sync"
 )
 
+//go:generate mockery --name IEventHandler
 type IEventHandler[T IEvent] interface {
 	HandleEvent(ctx context.Context, event T) error
 }
 
-// type EventHandlerFunc[T Event] func(ctx context.Context, event T) error
-
+//go:generate mockery --name IEventPublisher
 type IEventPublisher[T IEvent] interface {
 	Publish(ctx context.Context, events ...T) error
 }
 
+//go:generate mockery --name IEventSubscriber
 type IEventSubscriber[T IEvent] interface {
 	Subscribe(handler IEventHandler[T], events ...string)
 }
 
 // dispatcher needs to subscribe and publish both.
 // he can control the event flow with business logic
+//go:generate mockery --name IEventDispatcher
 type IEventDispatcher[T IEvent] interface {
 	IEventPublisher[T]
 	IEventSubscriber[T]
@@ -82,7 +84,3 @@ func (d *EventDispatcher[T]) Publish(ctx context.Context, events ...T) error {
 	}
 	return nil
 }
-
-// func (f EventHandlerFunc[T]) HandleEvent(ctx context.Context, event T) error {
-// 	return f(ctx, event)
-// }
