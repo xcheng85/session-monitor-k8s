@@ -15,18 +15,18 @@ type Pod struct {
 	Ip        string `json:"ip,omitempty"`
 }
 
-func NewPod(id string) *Pod {
-	return &Pod{
-		IAggregatable: ddd.NewAggregatable(id, PodAggregate),
-	}
-}
+// func NewPod(id string) *Pod {
+// 	return &Pod{
+// 		IAggregatable: ddd.NewAggregatable(id, PodAggregate),
+// 	}
+// }
 
-func RegisterPod(name, namespace string) (*Pod, error) {
-	pod := NewPod(name)
-	pod.Name = name
-	pod.Namespace = namespace
-	pod.AddEvent(PodAddEvent, &PodEventPayload{
-		Pod: pod,
-	})
-	return pod, nil
-}
+// func RegisterPod(name, namespace string) (*Pod, error) {
+// 	pod := NewPod(name)
+// 	pod.Name = name
+// 	pod.Namespace = namespace
+// 	pod.AddEvent(PodAddEvent, &PodEventPayload{
+// 		Pod: pod,
+// 	})
+// 	return pod, nil
+// }

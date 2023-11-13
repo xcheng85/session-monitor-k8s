@@ -12,6 +12,7 @@ import (
 	"github.com/xcheng85/session-monitor-k8s/internal/repository"
 	"github.com/xcheng85/session-monitor-k8s/internal/worker"
 	"github.com/xcheng85/session-monitor-k8s/k8s"
+	"github.com/xcheng85/session-monitor-k8s/node"
 	"github.com/xcheng85/session-monitor-k8s/pod"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
@@ -39,6 +40,7 @@ func newIocContainer() (*IocContainer, error) {
 		})
 	err = container.Provide(k8s.NewK8sModule, dig.Name("k8s"))
 	err = container.Provide(pod.NewPodMonitoringModule, dig.Name("pod"))
+	err = container.Provide(node.NewNodeMonitoringModule, dig.Name("node"))
 	err = container.Provide(newMux)
 	err = container.Provide(newModuleContext)
 	err = container.Provide(worker.NewWorkerSyncer)
@@ -49,6 +51,7 @@ func newIocContainer() (*IocContainer, error) {
 		ModuleContext module.IModuleContext
 		K8s           module.Module `name:"k8s"`
 		Pod           module.Module `name:"pod"`
+		Node          module.Module `name:"node"`
 		Mux           *chi.Mux
 		WorkerSyncer  worker.IWorkerSyncer
 	}) (*CompositionRoot, error) {

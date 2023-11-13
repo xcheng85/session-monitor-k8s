@@ -58,8 +58,9 @@ make build-amd64
 ## Run
 ```shell
 # in terminal #1
-docker stop ab1cf48a45b2cbfd6b961c9b3e0a36b73d357f913bd369e6aea0c7ed241fa688
-docker rm ab1cf48a45b2cbfd6b961c9b3e0a36b73d357f913bd369e6aea0c7ed241fa688
+export CONTAINER_ID=a3d25b1e796af4351653b0f5885a351a21a8de2b1bc0c8cd0711399a248be78b
+docker stop $CONTAINER_ID
+docker rm $CONTAINER_ID
 docker run --name=redis -p 6379:6379 redis:6.2.7
 
 ```
