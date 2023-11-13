@@ -55,6 +55,12 @@ func (m PodMonitoringModule) Startup(ctx context.Context, mono module.IModuleCon
 	if err != nil {
 		return err
 	}
+	err = container.Provide(func(config config.IConfig) string {
+		return config.Get("app.pod_namespace").(string)
+	}, dig.Name("k8s_resource_namespace"))
+	if err != nil {
+		return err
+	}
 	err = container.Provide(session.NewSessionService)
 	if err != nil {
 		return err

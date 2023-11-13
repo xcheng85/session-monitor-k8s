@@ -71,8 +71,8 @@ func (d domainEventHandlers[T]) onRecordPodScheduleTimestamp(ctx context.Context
 	payload := event.Payload().(*domain.PodEventPayload)
 	sessionId := payload.Pod.SessionId
 	// to do use repository to get server timestamp
-	d.logger.Sugar().Infof("Session %s is scheduled at %d", sessionId, 0)
 	serverTimestamp, err := d.repository.GetServerTimestamp(ctx)
+	d.logger.Sugar().Infof("Session %s is scheduled at %d", sessionId, serverTimestamp)
 	if err == nil {
 		err = d.sessionService.SetPodScheduleTimeStamp(&session.UpdateSessionTimeStampLikeFieldActionPayload{
 			SessionId: sessionId,

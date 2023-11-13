@@ -55,7 +55,7 @@ func newIocContainer() (*IocContainer, error) {
 		Mux           *chi.Mux
 		WorkerSyncer  worker.IWorkerSyncer
 	}) (*CompositionRoot, error) {
-		root := newCompositionRoot(p.Mux, p.ModuleContext, p.WorkerSyncer, p.K8s, p.Pod)
+		root := newCompositionRoot(p.Mux, p.ModuleContext, p.WorkerSyncer, p.K8s, p.Pod, p.Node)
 		err := root.startupModules()
 		if err == nil {
 			return root, nil

@@ -2,8 +2,6 @@ package k8s
 
 import (
 	"context"
-	"errors"
-
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
@@ -40,6 +38,7 @@ func (informer *k8sDynamicInformer) Run() {
 type K8sInformerFilter struct {
 	dig.In
 	Resource string `name:"k8s_resource"`
+	Namespace string `name:"k8s_resource_namespace"`
 }
 
 func NewK8sDynamicInformer(
@@ -49,7 +48,7 @@ func NewK8sDynamicInformer(
 	handler IK8sEventHandler,
 	filter K8sInformerFilter,
 ) (IK8sInformer, error) {
-	informer, err := newDynamicInformer(ctx, config, filter.Resource)
+	informer, err := newDynamicInformer(ctx, config, filter.Resource, filter.Namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +62,8 @@ func NewK8sDynamicInformer(
 	}, nil
 }
 
-func newDynamicInformer(ctx context.Context, config config.IConfig, resource string) (cache.SharedIndexInformer, error) {
+func newDynamicInformer(ctx context.Context, config config.IConfig, resource string, namespace string) (cache.SharedIndexInformer, error) {
 	kubeConfig := config.Get("app.kube_config").(string)
-	namespace := config.Get("app.pod_namespace").(string)
 	var clusterConfig *rest.Config
 	var err error
 	if kubeConfig != "" {
@@ -82,9 +80,7 @@ func newDynamicInformer(ctx context.Context, config config.IConfig, resource str
 	}
 
 	podResources := schema.GroupVersionResource{Group: "", Version: "v1", Resource: resource}
-	if namespace == "" {
-		return nil, errors.New("empty namespace")
-	}
+	// node resource has empty namespace
 	factory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(dynamicClient, 0, namespace, nil)
 	informer := factory.ForResource(podResources).Informer()
 	return informer, nil

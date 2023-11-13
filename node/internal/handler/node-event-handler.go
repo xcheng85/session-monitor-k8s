@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
 	"github.com/xcheng85/session-monitor-k8s/internal/ddd"
 	"github.com/xcheng85/session-monitor-k8s/internal/k8s"
@@ -57,17 +58,40 @@ func (handler *NodeEventHandler) OnAddObject(obj interface{}) {
 	if err != nil {
 		handler.logger.Sugar().Error("OnAddObject:", err)
 	} else {
-		name, namespace := node.Name, node.Namespace
+		name := node.Name
 		agentPoolName := node.Labels["agentpool"]
-		gpuAgentPools := handler.config.Get("app.gpu_agent_pool_names").([]string)
+		// cannot convert []interface{} directly to []string{}
+		gpuAgentPools := handler.config.Get("app.gpu_agent_pool_names").([]interface{})
 		for _, v := range gpuAgentPools {
-			if agentPoolName == v {
+			if agentPoolName == v.(string) {
 				driverVersion := parseGPUDriverVersion(&node.Labels)
-				handler.logger.Sugar().Infow("Node is added", "Name", name, "Namespace", namespace,
-					"Driver", driverVersion)
 				// two event to dispatch
 				// 1. updateGPUNodeAgentPoolLabelsCache
 				// 2. record node provision timestamp
+				nodeDomain := &domain.Node{
+					Name:          name,
+					DriverVersion: driverVersion,
+					Labels:        &node.Labels,
+				}
+				handler.domainEventDispatcher.Publish(
+					handler.ctx,
+					ddd.NewEvent(
+						domain.NodeAddEvent,
+						&domain.NodeEventPayload{
+							Node: nodeDomain,
+						}),
+					ddd.NewEvent(
+						domain.NodeUpdateLabelsCacheEvent,
+						&domain.NodeEventPayload{
+							Node: nodeDomain,
+						}),
+					ddd.NewEvent(
+						domain.NodeRecordNodeProvisionEvent,
+						&domain.NodeEventPayload{
+							Node: nodeDomain,
+						},
+					),
+				)
 			}
 		}
 	}
@@ -78,16 +102,32 @@ func (handler *NodeEventHandler) OnUpdateObject(oldObj, newObj interface{}) {
 	if err != nil {
 		handler.logger.Sugar().Error("OnUpdateObject:", err)
 	} else {
-		name, namespace := node.Name, node.Namespace
+		name := node.Name
 		agentPoolName := node.Labels["agentpool"]
-		gpuAgentPools := handler.config.Get("app.gpu_agent_pool_names").([]string)
+		// cannot convert []interface{} directly to []string{}
+		gpuAgentPools := handler.config.Get("app.gpu_agent_pool_names").([]interface{})
 		for _, v := range gpuAgentPools {
-			if agentPoolName == v {
+			if agentPoolName == v.(string) {
 				driverVersion := parseGPUDriverVersion(&node.Labels)
-				handler.logger.Sugar().Infow("Node is updated", "Name", name, "Namespace", namespace,
-					"Driver", driverVersion)
 				// one event to dispatch
 				// 1. updateGPUNodeAgentPoolLabelsCache
+				nodeDomain := &domain.Node{
+					Name:          name,
+					DriverVersion: driverVersion,
+					Labels:        &node.Labels,
+				}
+				handler.domainEventDispatcher.Publish(
+					handler.ctx,
+					ddd.NewEvent(
+						domain.NodeUpdateEvent,
+						&domain.NodeEventPayload{
+							Node: nodeDomain,
+						}),
+					ddd.NewEvent(
+						domain.NodeUpdateLabelsCacheEvent,
+						&domain.NodeEventPayload{
+							Node: nodeDomain,
+						}))
 			}
 		}
 	}
@@ -98,12 +138,23 @@ func (handler *NodeEventHandler) OnDeleteObject(obj interface{}) {
 	if err != nil {
 		handler.logger.Sugar().Error("OnUpdateObject:", err)
 	} else {
-		name, namespace := node.Name, node.Namespace
+		name := node.Name
 		agentPoolName := node.Labels["agentpool"]
-		gpuAgentPools := handler.config.Get("app.gpu_agent_pool_names").([]string)
+		// cannot convert []interface{} directly to []string{}
+		gpuAgentPools := handler.config.Get("app.gpu_agent_pool_names").([]interface{})
 		for _, v := range gpuAgentPools {
-			if agentPoolName == v {
-				handler.logger.Sugar().Infow("Node is deleted", "Name", name, "Namespace", namespace)
+			if agentPoolName == v.(string) {
+				nodeDomain := &domain.Node{
+					Name:          name,
+					Labels:        &node.Labels,
+				}
+				handler.domainEventDispatcher.Publish(
+					handler.ctx,
+					ddd.NewEvent(
+						domain.NodeDeleteEvent,
+						&domain.NodeEventPayload{
+							Node: nodeDomain,
+						}))
 			}
 		}
 	}

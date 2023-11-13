@@ -9,6 +9,7 @@ import (
 	"github.com/xcheng85/session-monitor-k8s/internal/k8s"
 	"github.com/xcheng85/session-monitor-k8s/internal/module"
 	"github.com/xcheng85/session-monitor-k8s/internal/repository"
+	"github.com/xcheng85/session-monitor-k8s/internal/session"
 	"github.com/xcheng85/session-monitor-k8s/node/internal/handler"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
@@ -40,10 +41,10 @@ func (m NodeMonitoringModule) Startup(ctx context.Context, mono module.IModuleCo
 	if err != nil {
 		return err
 	}
-	// err = container.Provide(handler.NewDomainEventHandlers)
-	// if err != nil {
-	// 	return err
-	// }
+	err = container.Provide(handler.NewDomainEventHandlers)
+	if err != nil {
+		return err
+	}
 	err = container.Provide(handler.NewNodeEventHandler)
 	if err != nil {
 		return err
@@ -54,10 +55,16 @@ func (m NodeMonitoringModule) Startup(ctx context.Context, mono module.IModuleCo
 	if err != nil {
 		return err
 	}
-	// err = container.Provide(session.NewSessionService)
-	// if err != nil {
-	// 	return err
-	// }
+	err = container.Provide(func() string {
+		return ""
+	}, dig.Name("k8s_resource_namespace"))
+	if err != nil {
+		return err
+	}
+	err = container.Provide(session.NewSessionService)
+	if err != nil {
+		return err
+	}
 	err = container.Invoke(func(informer k8s.IK8sInformer) error {
 		// detach goroutine
 		go informer.Run()

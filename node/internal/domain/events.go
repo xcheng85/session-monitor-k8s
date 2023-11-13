@@ -7,6 +7,7 @@ const (
 	NodeDeleteEvent              = "NodeDeleteEvent"
 	NodeUpdateEvent              = "NodeUpdateEvent"
 	NodeRecordNodeProvisionEvent = "NodeRecordNodeProvisionEvent"
+	NodeUpdateLabelsCacheEvent   = "NodeUpdateLabelsCacheEvent"
 )
 
 type NodeInformerErrorPayload struct {
@@ -14,5 +15,5 @@ type NodeInformerErrorPayload struct {
 }
 
 type NodeEventPayload struct {
-	Name string `json:"name,omitempty"`
+	Node *Node
 }
