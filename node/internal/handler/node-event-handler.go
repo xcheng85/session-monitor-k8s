@@ -145,8 +145,8 @@ func (handler *NodeEventHandler) OnDeleteObject(obj interface{}) {
 		for _, v := range gpuAgentPools {
 			if agentPoolName == v.(string) {
 				nodeDomain := &domain.Node{
-					Name:          name,
-					Labels:        &node.Labels,
+					Name:   name,
+					Labels: &node.Labels,
 				}
 				handler.domainEventDispatcher.Publish(
 					handler.ctx,

@@ -34,7 +34,7 @@ func (informer *k8sDynamicInformer) Run() {
 
 type K8sInformerFilter struct {
 	dig.In
-	Resource string `name:"k8s_resource"`
+	Resource  string `name:"k8s_resource"`
 	Namespace string `name:"k8s_resource_namespace"`
 }
 

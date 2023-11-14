@@ -70,7 +70,7 @@ func (s *redisRepository) Ping(ctx context.Context) (string, error) {
 func (s *redisRepository) AddStreamEvent(ctx context.Context, streamKey string, streamId string, payload interface{}) (string, error) {
 	status := s.client.XAdd(ctx, &redis.XAddArgs{
 		Stream: streamKey,
-		ID:     "*",
+		ID:     streamId,
 		Values: payload,
 	})
 	return status.Result()

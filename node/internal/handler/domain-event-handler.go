@@ -93,7 +93,7 @@ func (d domainEventHandlers[T]) onRecordNodeProvision(ctx context.Context, event
 	return err
 }
 
-func (d domainEventHandlers[T]) onNodeUpdateLabelsCache(ctx context.Context, event ddd.IEvent) (error) {
+func (d domainEventHandlers[T]) onNodeUpdateLabelsCache(ctx context.Context, event ddd.IEvent) error {
 	payload := event.Payload().(*domain.NodeEventPayload)
 	nodeLables := payload.Node.Labels
 	agentPoolName := (*nodeLables)["agentpool"]
@@ -103,12 +103,12 @@ func (d domainEventHandlers[T]) onNodeUpdateLabelsCache(ctx context.Context, eve
 	}
 	gpuAgentPoolSetKey := d.config.Get("app.gpu_agent_pool_set_key").(string)
 
-	// transaction 
+	// transaction
 	var numKeysAdded int64
 	numKeysAdded, err = d.repository.AddToUnsortedSet(ctx, gpuAgentPoolSetKey, &repository.Object{
-		Key: agentPoolName,
+		Key:     agentPoolName,
 		Payload: string(j),
 	})
-	d.logger.Sugar().Infof("AddToUnsortedSet: %d key(s) are added", numKeysAdded )
+	d.logger.Sugar().Infof("AddToUnsortedSet: %d key(s) are added", numKeysAdded)
 	return err
 }

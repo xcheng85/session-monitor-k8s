@@ -9,7 +9,7 @@ type InvalidStoreKeyErr struct {
 }
 
 func (r *InvalidStoreKeyErr) Error() string {
-	return fmt.Sprintf("StoreKey: %s is incorrect", r.key)
+	return fmt.Sprintf("StoreKey: %s does not exist", r.key)
 }
 
 // assert style in golang

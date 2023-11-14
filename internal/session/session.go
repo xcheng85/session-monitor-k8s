@@ -70,7 +70,7 @@ func (svc *sessionService) SetSessionDeletable(payload *SetSessionDeletableActio
 
 func (svc *sessionService) SetNodeProvisionTimeStamp(payload *SetNodeProvisionTimeStampActionPayload) error {
 	nodeName, timestamp := payload.NodeName, payload.Timestamp
-	nodeProvisionTimestampStoreKey := fmt.Sprintf("NodeProvisionTimeStamp.'%s'", nodeName)
+	nodeProvisionTimestampStoreKey := fmt.Sprintf("NodeProvisionTimeStamp.%s", nodeName)
 	svc.logger.Sugar().Infow("SetNodeProvisionTimeStamp", "nodeName", nodeName, "timestamp", timestamp, "key", nodeProvisionTimestampStoreKey)
 	svc.config.Set(nodeProvisionTimestampStoreKey, timestamp)
 	return nil
@@ -78,14 +78,14 @@ func (svc *sessionService) SetNodeProvisionTimeStamp(payload *SetNodeProvisionTi
 
 func (svc *sessionService) SetPodScheduleTimeStamp(payload *UpdateSessionTimeStampLikeFieldActionPayload) error {
 	sessionId, timestamp := payload.SessionId, payload.Timestamp
-	podScheduledTimestampStoreKey := fmt.Sprintf("PodScheduleTimeStamp.'%s'", sessionId)
-	svc.logger.Sugar().Infow("SetNodeProvisionTimeStamp", "sessionId", sessionId, "timestamp", timestamp, "key", podScheduledTimestampStoreKey)
+	podScheduledTimestampStoreKey := fmt.Sprintf("PodScheduleTimeStamp.%s", sessionId)
+	svc.logger.Sugar().Infow("SetPodScheduleTimeStamp", "sessionId", sessionId, "timestamp", timestamp, "key", podScheduledTimestampStoreKey)
 	svc.config.Set(podScheduledTimestampStoreKey, timestamp)
 	return nil
 }
 
 func (svc *sessionService) GetNodeProvisionTimeStamp(nodeName string) (int64, error) {
-	nodeProvisionTimestampStoreKey := fmt.Sprintf("NodeProvisionTimeStamp.'%s'", nodeName)
+	nodeProvisionTimestampStoreKey := fmt.Sprintf("NodeProvisionTimeStamp.%s", nodeName)
 	svc.logger.Sugar().Infow("GetNodeProvisionTimeStamp", "key", nodeProvisionTimestampStoreKey)
 	val, ok := svc.config.Get(nodeProvisionTimestampStoreKey).(int64)
 	if ok {
@@ -96,7 +96,7 @@ func (svc *sessionService) GetNodeProvisionTimeStamp(nodeName string) (int64, er
 }
 
 func (svc *sessionService) GetPodScheduleTimeStamp(sessionId string) (int64, error) {
-	podScheduledTimestampStoreKey := fmt.Sprintf("PodScheduleTimeStamp.'%s'", sessionId)
+	podScheduledTimestampStoreKey := fmt.Sprintf("PodScheduleTimeStamp.%s", sessionId)
 	svc.logger.Sugar().Infow("GetPodScheduleTimeStamp", "key", podScheduledTimestampStoreKey)
 	val, ok := svc.config.Get(podScheduledTimestampStoreKey).(int64)
 	if ok {
