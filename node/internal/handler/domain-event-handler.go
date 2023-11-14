@@ -52,9 +52,9 @@ func (d domainEventHandlers[T]) HandleEvent(ctx context.Context, event T) (err e
 	case domain.NodeDeleteEvent:
 		return d.onNodeDeleted(ctx, event)
 	case domain.NodeUpdateLabelsCacheEvent:
-		return d.onRecordNodeProvision(ctx, event)
+		return d.onNodeUpdateLabelsCache(ctx, event)
 	case domain.NodeRecordNodeProvisionEvent:
-		return d.onRecordNodeProvision(ctx, event)
+		return d.onRecordNodeProvisionTimestamp(ctx, event)
 	}
 	return nil
 }
@@ -80,7 +80,7 @@ func (d domainEventHandlers[T]) onNodeUpdated(ctx context.Context, event ddd.IEv
 	return nil
 }
 
-func (d domainEventHandlers[T]) onRecordNodeProvision(ctx context.Context, event ddd.IEvent) error {
+func (d domainEventHandlers[T]) onRecordNodeProvisionTimestamp(ctx context.Context, event ddd.IEvent) error {
 	payload := event.Payload().(*domain.NodeEventPayload)
 	nodeName := payload.Node.Name
 	// to do use repository to get server timestamp
