@@ -26,6 +26,6 @@ func (router *K8sRouter) Register() error {
 	r.Get("/livenessProbe", router.handler.GetLivenessProbe)
 	r.Get("/readinessProbe", router.handler.GetReadinessProbe)
 	// mounting path must be unique
-	router.mux.Mount("/k8s", r)
+	router.mux.Mount("/", r)
 	return nil
 }
