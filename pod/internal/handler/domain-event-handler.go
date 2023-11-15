@@ -94,12 +94,10 @@ func (d domainEventHandlers[T]) onPodReady(ctx context.Context, event ddd.IEvent
 	)
 
 	nodeProvisionedTimeStamp, nodeErr := d.sessionService.GetNodeProvisionTimeStamp(nodeName)
-	podScheduledTimeStamp, podErr := d.sessionService.GetPodScheduleTimeStamp(sessionId)
-
 	if nodeErr != nil {
 		return nodeErr
 	}
-
+	podScheduledTimeStamp, podErr := d.sessionService.GetPodScheduleTimeStamp(sessionId)
 	if podErr != nil {
 		return podErr
 	}
