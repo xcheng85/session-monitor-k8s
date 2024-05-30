@@ -60,7 +60,11 @@ func NewK8sDynamicInformer(
 }
 
 func newDynamicInformer(ctx context.Context, config config.IConfig, resource string, namespace string) (cache.SharedIndexInformer, error) {
-	kubeConfig := config.Get("app.kube_config").(string)
+	var kubeConfig = ""
+	t := config.Get("app.kube_config")
+	if t != nil {
+		kubeConfig = t.(string)
+	}
 	var clusterConfig *rest.Config
 	var err error
 	if kubeConfig != "" {

@@ -1,12 +1,12 @@
 app:
-  kube_config: /home/xcheng4/.kube/config
+  kube_config: /home/xcheng85/.kube/config
   pod_namespace: evd-cia3dviz
+  redis_disable: false
   redis_address: 127.0.0.1:6379
+  redisv9_disable: false
+  redisv9_address: 127.0.0.1:6380
   redis_mock: false
   enqueue_session_stream_key: "enqueue_session_test"
   delete_session_stream_key: "delete_session_test"
   gpu_agent_pool_set_key: "GpuNodePools"
-  gpu_agent_pool_names: 
-    - viz
-    - viz1
-    - viz2
+  gpu_observee_labels: ["accelerator", "nvidia", "lightops.slb.com/role", "3dviz"]

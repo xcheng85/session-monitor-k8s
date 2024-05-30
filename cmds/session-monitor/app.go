@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
 	"github.com/xcheng85/session-monitor-k8s/internal/ddd"
+	"github.com/xcheng85/session-monitor-k8s/internal/k8s"
 	"github.com/xcheng85/session-monitor-k8s/internal/module"
 	"github.com/xcheng85/session-monitor-k8s/internal/repository"
 	"github.com/xcheng85/session-monitor-k8s/internal/worker"
@@ -46,9 +47,20 @@ func (r *CompositionRoot) startup() error {
 
 func (r *CompositionRoot) startupModules() error {
 	for _, module := range r.modules {
-		if err := module.Startup(r.workerSyncer.Context(), r.moduleCtx); err != nil {
+		container, err := module.Startup(r.workerSyncer.Context(), r.moduleCtx)
+		if err != nil {
 			return err
 		}
+		err = container.Invoke(func(informer k8s.IK8sInformer) error {
+			if informer != nil {
+				go informer.Run()
+			}
+			return nil
+		})
+		// k8s module won't be able to invoke k8s.IK8sInformer, ignore
+		// if err != nil {
+		// 	return err
+		// }
 	}
 	return nil
 }

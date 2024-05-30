@@ -68,20 +68,16 @@ func (d *EventDispatcher[T]) Subscribe(handler IEventHandler[T], events ...strin
 	})
 }
 
-func (d *EventDispatcher[T]) Publish(ctx context.Context, events ...T) error {
+func (d *EventDispatcher[T]) Publish(ctx context.Context, events ...T) (err error) {
 	for _, event := range events {
 		for _, eventHandler := range d.eventHandlers {
 			if eventHandler.filters != nil {
-
 				if _, exists := eventHandler.filters[event.EventName()]; !exists {
 					continue
 				}
 			}
-			err := eventHandler.handler.HandleEvent(ctx, event)
-			if err != nil {
-				return err
-			}
+			err = eventHandler.handler.HandleEvent(ctx, event)
 		}
 	}
-	return nil
+	return err
 }

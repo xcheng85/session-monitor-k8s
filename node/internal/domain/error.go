@@ -20,7 +20,6 @@ func (s *BadNodeLabelErr) Is(target error) bool {
 		return false
 	}
 	return reflect.DeepEqual(*s.label, *targetErr.label)
-
 }
 
 func NewBadNodeLabelErr(label *map[string]string) *BadNodeLabelErr {

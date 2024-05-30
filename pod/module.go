@@ -17,9 +17,9 @@ import (
 
 type PodMonitoringModule struct{}
 
-func (m PodMonitoringModule) Startup(ctx context.Context, mono module.IModuleContext) (err error) {
+func (m PodMonitoringModule) Startup(ctx context.Context, mono module.IModuleContext) (*dig.Container, error) {
 	container := dig.New()
-	err = container.Provide(func() context.Context {
+	err := container.Provide(func() context.Context {
 		return ctx
 	})
 	err = container.Provide(func() *zap.Logger {
@@ -39,38 +39,36 @@ func (m PodMonitoringModule) Startup(ctx context.Context, mono module.IModuleCon
 	})
 	err = container.Provide(k8s.NewK8sDynamicInformer)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(handler.NewDomainEventHandlers)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(handler.NewPodEventHandler)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(func() string {
 		return "pods"
 	}, dig.Name("k8s_resource"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(func(config config.IConfig) string {
 		return config.Get("app.pod_namespace").(string)
 	}, dig.Name("k8s_resource_namespace"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(session.NewSessionService)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Invoke(func(informer k8s.IK8sInformer) error {
-		// detach goroutine
-		go informer.Run()
 		return nil
 	})
-	return err
+	return container, err
 }
 func NewPodMonitoringModule() module.Module {
 	return &PodMonitoringModule{}

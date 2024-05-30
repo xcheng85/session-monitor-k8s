@@ -163,18 +163,8 @@ func (handler *PodEventHandler) OnDeleteObject(obj interface{}) {
 	if err != nil {
 		handler.logger.Sugar().Error("OnAddObject:", err)
 	} else {
-		name, namespace, sessionId := pod.ObjectMeta.Name, pod.ObjectMeta.Namespace, pod.ObjectMeta.Labels["sessionId"]
+		name, namespace := pod.ObjectMeta.Name, pod.ObjectMeta.Namespace
 		handler.logger.Sugar().Infow("Pod is deleted", "Name", name, "Namespace", namespace)
-		handler.domainEventDispatcher.Publish(handler.ctx, ddd.NewEvent(
-			domain.PodDeleteEvent,
-			&domain.PodEventPayload{
-				Pod: &domain.Pod{
-					Name:      name,
-					Namespace: namespace,
-					SessionId: sessionId,
-				},
-			},
-		))
 	}
 }
 

@@ -37,7 +37,7 @@ func TestHandleEvent(t *testing.T) {
 			inEventDispatcherMock: func() *ddd.MockIEventDispatcher[ddd.IEvent] {
 				mockEventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 				mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-					mock.Anything, mock.Anything).Return(nil)
+					mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				return &mockEventDispatcher
 			},
 			inKVRepositoryMock: func() *repository.MockIKVRepository {
@@ -76,7 +76,7 @@ func TestHandleEvent(t *testing.T) {
 			inEventDispatcherMock: func() *ddd.MockIEventDispatcher[ddd.IEvent] {
 				mockEventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 				mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-					mock.Anything, mock.Anything).Return(nil)
+					mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				return &mockEventDispatcher
 			},
 			inKVRepositoryMock: func() *repository.MockIKVRepository {
@@ -115,7 +115,7 @@ func TestHandleEvent(t *testing.T) {
 			inEventDispatcherMock: func() *ddd.MockIEventDispatcher[ddd.IEvent] {
 				mockEventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 				mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-					mock.Anything, mock.Anything).Return(nil)
+					mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				return &mockEventDispatcher
 			},
 			inKVRepositoryMock: func() *repository.MockIKVRepository {
@@ -156,7 +156,7 @@ func TestHandleEvent(t *testing.T) {
 			inEventDispatcherMock: func() *ddd.MockIEventDispatcher[ddd.IEvent] {
 				mockEventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 				mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-					mock.Anything, mock.Anything).Return(nil)
+					mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				return &mockEventDispatcher
 			},
 			inKVRepositoryMock: func() *repository.MockIKVRepository {
@@ -198,7 +198,7 @@ func TestHandleEvent(t *testing.T) {
 			inEventDispatcherMock: func() *ddd.MockIEventDispatcher[ddd.IEvent] {
 				mockEventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 				mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-					mock.Anything, mock.Anything).Return(nil)
+					mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				return &mockEventDispatcher
 			},
 			inKVRepositoryMock: func() *repository.MockIKVRepository {

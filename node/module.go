@@ -2,7 +2,7 @@ package node
 
 import (
 	"context"
-
+	
 	"github.com/go-chi/chi/v5"
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
 	"github.com/xcheng85/session-monitor-k8s/internal/ddd"
@@ -17,9 +17,9 @@ import (
 
 type NodeMonitoringModule struct{}
 
-func (m NodeMonitoringModule) Startup(ctx context.Context, mono module.IModuleContext) (err error) {
+func (m NodeMonitoringModule) Startup(ctx context.Context, mono module.IModuleContext) (*dig.Container, error) {
 	container := dig.New()
-	err = container.Provide(func() context.Context {
+	err := container.Provide(func() context.Context {
 		return ctx
 	})
 	err = container.Provide(func() *zap.Logger {
@@ -39,38 +39,38 @@ func (m NodeMonitoringModule) Startup(ctx context.Context, mono module.IModuleCo
 	})
 	err = container.Provide(k8s.NewK8sDynamicInformer)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(handler.NewDomainEventHandlers)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(handler.NewNodeEventHandler)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(func() string {
 		return "nodes"
 	}, dig.Name("k8s_resource"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(func() string {
 		return ""
 	}, dig.Name("k8s_resource_namespace"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Provide(session.NewSessionService)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = container.Invoke(func(informer k8s.IK8sInformer) error {
-		// detach goroutine
-		go informer.Run()
+		// detach goroutine, let app in the cli to do it
+		// go informer.Run()
 		return nil
 	})
-	return err
+	return container, err
 }
 func NewNodeMonitoringModule() module.Module {
 	return &NodeMonitoringModule{}

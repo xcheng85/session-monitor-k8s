@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
+
 func TestNewPodEventHandler(t *testing.T) {
 	ctx := context.TODO()
 	logger := logger.NewZapLogger(logger.LogConfig{
@@ -412,5 +413,5 @@ func TestOnDeleteObject(t *testing.T) {
 		},
 	}
 	h.OnDeleteObject(payload)
-	eventDispatcher.AssertNumberOfCalls(t, "Publish", 1)
+	eventDispatcher.AssertNumberOfCalls(t, "Publish", 0)
 }

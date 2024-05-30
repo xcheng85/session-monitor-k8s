@@ -41,12 +41,15 @@ func NewSessionService(ctx context.Context, logger *zap.Logger, config config.IC
 func (svc *sessionService) SetSessionReady(payload *SetSessionReadyActionPayload) error {
 	// reuse viper as config store
 	streamKey := svc.config.Get("app.enqueue_session_stream_key").(string)
+	svc.logger.Sugar().Infof("SetSessionReady streamKey: %s", streamKey)
 	out, _ := json.Marshal(payload)
-	svc.logger.Sugar().Info(string(out))
+	svc.logger.Sugar().Infof("SetSessionReady payload to submit: %s", string(out))
 	currentServerUnixTimestamp, err := svc.kvRepo.GetServerTimestamp(svc.ctx)
 	if err != nil {
+		svc.logger.Sugar().Errorf("GetServerTimestamp has error: %ds", err.Error())
 		return err
 	}
+	svc.logger.Sugar().Infof("GetServerTimestamp: %d", currentServerUnixTimestamp)
 	payloadToKvStore := []interface{}{"TaskType", string(EnqueueSession), "TaskInfo", string(out), "TaskCreateTimeStamp", currentServerUnixTimestamp}
 	streamId, err := svc.kvRepo.AddStreamEvent(svc.ctx, streamKey, "*", payloadToKvStore)
 	svc.logger.Sugar().Infof("SetSessionReady create streamTask: %s", streamId)

@@ -54,8 +54,14 @@ func TestOnAddObject(t *testing.T) {
 	})
 
 	config := &config.MockIConfig{}
-	args := []interface{}{"viz3d", "viz3d1"}
-	config.On("Get", "app.gpu_agent_pool_names").Return(args).Once()
+	args := []string{
+		"accelerator", "nvidia", "lightops.slb.com/role", "3dviz",
+	}
+	argsTypeless := make([]interface{}, len(args))
+	for i, arg := range args {
+		argsTypeless[i] = arg
+	}
+	config.On("Get", "app.gpu_observee_labels").Return(argsTypeless).Once()
 
 	eventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 	eventDispatcher.On("Publish", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
@@ -71,8 +77,9 @@ func TestOnAddObject(t *testing.T) {
 				"uid":             "test_uid",
 				"resourceVersion": "test_resourceVersion",
 				"labels": map[string]interface{}{
-					"accelerator": "nvidia",
-					"agentpool":   "viz3d",
+					"accelerator":           "nvidia",
+					"agentpool":             "viz3d",
+					"lightops.slb.com/role": "3dviz",
 				},
 				"annotations": map[string]interface{}{
 					"nfd.node.kubernetes.io/worker.version": "v0.14.1",
@@ -85,15 +92,21 @@ func TestOnAddObject(t *testing.T) {
 	eventDispatcher.AssertNumberOfCalls(t, "Publish", 1)
 }
 
-func TestOnUpdateObject(t *testing.T) {
+func TestOnAddObjectIgnoreNode(t *testing.T) {
 	ctx := context.TODO()
 	logger := logger.NewZapLogger(logger.LogConfig{
 		LogLevel: logger.DEBUG,
 	})
 
 	config := &config.MockIConfig{}
-	args := []interface{}{"viz3d", "viz3d1"}
-	config.On("Get", "app.gpu_agent_pool_names").Return(args).Once()
+	args := []string{
+		"accelerator", "nvidia", "lightops.slb.com/role", "3dviz",
+	}
+	argsTypeless := make([]interface{}, len(args))
+	for i, arg := range args {
+		argsTypeless[i] = arg
+	}
+	config.On("Get", "app.gpu_observee_labels").Return(argsTypeless).Once()
 
 	eventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 	eventDispatcher.On("Publish", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
@@ -109,8 +122,52 @@ func TestOnUpdateObject(t *testing.T) {
 				"uid":             "test_uid",
 				"resourceVersion": "test_resourceVersion",
 				"labels": map[string]interface{}{
-					"accelerator": "nvidia",
-					"agentpool":   "viz3d",
+					"agentpool": "viz3d",
+				},
+				"annotations": map[string]interface{}{
+					"nfd.node.kubernetes.io/worker.version": "v0.14.1",
+				},
+			},
+			"spec": map[string]interface{}{},
+		},
+	}
+	h.OnAddObject(payload)
+	eventDispatcher.AssertNumberOfCalls(t, "Publish", 0)
+}
+
+func TestOnUpdateObjectWithInvalidDriver(t *testing.T) {
+	ctx := context.TODO()
+	logger := logger.NewZapLogger(logger.LogConfig{
+		LogLevel: logger.DEBUG,
+	})
+
+	config := &config.MockIConfig{}
+	args := []string{
+		"accelerator", "nvidia", "lightops.slb.com/role", "3dviz",
+	}
+	argsTypeless := make([]interface{}, len(args))
+	for i, arg := range args {
+		argsTypeless[i] = arg
+	}
+	config.On("Get", "app.gpu_observee_labels").Return(argsTypeless).Once()
+
+	eventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
+	eventDispatcher.On("Publish", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+	eventHandler := ddd.MockIEventHandler[ddd.IEvent]{}
+	h := NewNodeEventHandler(ctx, logger, config, &eventDispatcher, &eventHandler)
+	payload := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       "Node",
+			"apiVersion": "v1",
+			"metadata": map[string]interface{}{
+				"name":            "aks-viz3d4-33002848-vmss0001nc",
+				"uid":             "test_uid",
+				"resourceVersion": "test_resourceVersion",
+				"labels": map[string]interface{}{
+					"accelerator":           "nvidia",
+					"agentpool":             "viz3d",
+					"lightops.slb.com/role": "3dviz",
 				},
 				"annotations": map[string]interface{}{
 					"nfd.node.kubernetes.io/worker.version": "v0.14.1",
@@ -121,17 +178,25 @@ func TestOnUpdateObject(t *testing.T) {
 	}
 	h.OnUpdateObject(nil, payload)
 	eventDispatcher.AssertNumberOfCalls(t, "Publish", 1)
+	// 1 event when driver is not ready
+	eventDispatcher.AssertCalled(t, "Publish", ctx, mock.Anything)
 }
 
-func TestOnDeleteObject(t *testing.T) {
+func TestOnUpdateObjectWithValidDriver(t *testing.T) {
 	ctx := context.TODO()
 	logger := logger.NewZapLogger(logger.LogConfig{
 		LogLevel: logger.DEBUG,
 	})
 
 	config := &config.MockIConfig{}
-	args := []interface{}{"viz3d", "viz3d1"}
-	config.On("Get", "app.gpu_agent_pool_names").Return(args).Once()
+	args := []string{
+		"accelerator", "nvidia", "lightops.slb.com/role", "3dviz",
+	}
+	argsTypeless := make([]interface{}, len(args))
+	for i, arg := range args {
+		argsTypeless[i] = arg
+	}
+	config.On("Get", "app.gpu_observee_labels").Return(argsTypeless).Once()
 
 	eventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
 	eventDispatcher.On("Publish", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
@@ -147,8 +212,59 @@ func TestOnDeleteObject(t *testing.T) {
 				"uid":             "test_uid",
 				"resourceVersion": "test_resourceVersion",
 				"labels": map[string]interface{}{
-					"accelerator": "nvidia",
-					"agentpool":   "viz3d",
+					"accelerator":                  "nvidia",
+					"agentpool":                    "viz3d",
+					"lightops.slb.com/role":        "3dviz",
+					"nvidia.com/cuda.driver.major": "535",
+					"nvidia.com/cuda.driver.minor": "53",
+					"nvidia.com/cuda.driver.rev":   "03",
+				},
+				"annotations": map[string]interface{}{
+					"nfd.node.kubernetes.io/worker.version": "v0.14.1",
+				},
+			},
+			"spec": map[string]interface{}{},
+		},
+	}
+	h.OnUpdateObject(nil, payload)
+	eventDispatcher.AssertNumberOfCalls(t, "Publish", 1)
+	// two events as variadic params
+	eventDispatcher.AssertCalled(t, "Publish", ctx, mock.Anything, mock.Anything)
+}
+
+func TestOnDeleteObject(t *testing.T) {
+	ctx := context.TODO()
+	logger := logger.NewZapLogger(logger.LogConfig{
+		LogLevel: logger.DEBUG,
+	})
+
+	config := &config.MockIConfig{}
+	args := []string{
+		"accelerator", "nvidia", "lightops.slb.com/role", "3dviz",
+	}
+	argsTypeless := make([]interface{}, len(args))
+	for i, arg := range args {
+		argsTypeless[i] = arg
+	}
+	config.On("Get", "app.gpu_observee_labels").Return(argsTypeless).Once()
+
+	eventDispatcher := ddd.MockIEventDispatcher[ddd.IEvent]{}
+	eventDispatcher.On("Publish", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+	eventHandler := ddd.MockIEventHandler[ddd.IEvent]{}
+	h := NewNodeEventHandler(ctx, logger, config, &eventDispatcher, &eventHandler)
+	payload := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       "Node",
+			"apiVersion": "v1",
+			"metadata": map[string]interface{}{
+				"name":            "aks-viz3d4-33002848-vmss0001nc",
+				"uid":             "test_uid",
+				"resourceVersion": "test_resourceVersion",
+				"labels": map[string]interface{}{
+					"accelerator":           "nvidia",
+					"agentpool":             "viz3d",
+					"lightops.slb.com/role": "3dviz",
 				},
 				"annotations": map[string]interface{}{
 					"nfd.node.kubernetes.io/worker.version": "v0.14.1",
@@ -190,19 +306,27 @@ func TestParseNode(t *testing.T) {
 }
 
 func TestParseGPUDriverVersion(t *testing.T) {
+	logger := logger.NewZapLogger(logger.LogConfig{
+		LogLevel: logger.DEBUG,
+	})
 	nodeLables := map[string]string{
 		"nvidia.com/cuda.driver.major": "525",
 		"nvidia.com/cuda.driver.minor": "85",
 		"nvidia.com/cuda.driver.rev":   "12",
 	}
-	driverVersion := parseGPUDriverVersion(&nodeLables)
+	driverVersion, err := parseGPUDriverVersion(&nodeLables, logger)
 	assert.Equal(t, "525.85.12", driverVersion, "Parse GPU Driver Version should pass")
+	assert.Nil(t, err, "parseGPUDriverVersion should not have err")
 }
 
 func TestParseGPUDriverVersionMissingLables(t *testing.T) {
+	logger := logger.NewZapLogger(logger.LogConfig{
+		LogLevel: logger.DEBUG,
+	})
 	nodeLables := map[string]string{
 		"nvidia.com/cuda.driver.major": "525",
 	}
-	driverVersion := parseGPUDriverVersion(&nodeLables)
+	driverVersion, err := parseGPUDriverVersion(&nodeLables, logger)
 	assert.Equal(t, "", driverVersion, "Parse invalid gpu labels should return empty string")
+	assert.Equal(t, "Driver Version is missing!", err.Error(), "parseGPUDriverVersion should have err")
 }

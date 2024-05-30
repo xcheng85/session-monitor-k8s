@@ -32,6 +32,7 @@ func NewDomainEventHandlers(logger *zap.Logger,
 		domain.PodDeleteEvent,
 		domain.PodReadyEvent,
 		domain.PodRecordPodScheduleEvent,
+		domain.PodInformerErrorEvent,
 	)
 	return handler
 }
@@ -63,6 +64,7 @@ func (d domainEventHandlers[T]) onPodDeleted(ctx context.Context, event ddd.IEve
 	d.logger.Sugar().Infow("Pod is deleted", "Name", name, "Namespace", namespace, "SessionId", sessionId)
 	err := d.sessionService.SetSessionDeletable(&session.SetSessionDeletableActionPayload{
 		SessionId: sessionId,
+		CallerId:  "Session-monitor-service",
 	})
 	return err
 }
@@ -95,13 +97,16 @@ func (d domainEventHandlers[T]) onPodReady(ctx context.Context, event ddd.IEvent
 
 	nodeProvisionedTimeStamp, nodeErr := d.sessionService.GetNodeProvisionTimeStamp(nodeName)
 	if nodeErr != nil {
+		d.logger.Sugar().Errorf("GetNodeProvisionTimeStamp has error: %s", nodeErr.Error())
 		return nodeErr
 	}
+	d.logger.Sugar().Infof("GetNodeProvisionTimeStamp: %d", nodeProvisionedTimeStamp)
 	podScheduledTimeStamp, podErr := d.sessionService.GetPodScheduleTimeStamp(sessionId)
 	if podErr != nil {
+		d.logger.Sugar().Errorf("GetPodScheduleTimeStamp has error: %s", podErr.Error())
 		return podErr
 	}
-
+	d.logger.Sugar().Infof("GetPodScheduleTimeStamp: %d", podScheduledTimeStamp)
 	return d.sessionService.SetSessionReady(&session.SetSessionReadyActionPayload{
 		SessionId:              sessionId,
 		NodeName:               nodeName,

@@ -18,6 +18,6 @@ func Test_ModuleStartup(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	error := module.Startup(ctx, mockModuleCtx)
+	_, error := module.Startup(ctx, mockModuleCtx)
 	assert.Nil(t, error, "k8s module can start up")
 }

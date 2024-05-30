@@ -1,6 +1,6 @@
 module github.com/xcheng85/session-monitor-k8s
 
-go 1.21.3
+go 1.21.9
 
 require (
 	github.com/alicebob/miniredis v2.5.0+incompatible
@@ -8,7 +8,9 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/google/uuid v1.1.2
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	github.com/thoas/go-funk v0.9.3
@@ -25,7 +27,7 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20230218143504-906a9b012302 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/emicklei/go-restful/v3 v3.8.0 // indirect

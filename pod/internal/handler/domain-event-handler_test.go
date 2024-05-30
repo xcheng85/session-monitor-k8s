@@ -42,7 +42,7 @@ func TestNewDomainEventHandlers(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockSessionService := &session.MockISessionService{}
 
@@ -57,7 +57,7 @@ func TestHandleEvent_PodAddEvent(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockSessionService := &session.MockISessionService{}
 
@@ -77,11 +77,12 @@ func TestHandleEvent_PodDeleted(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockSessionService := &session.MockISessionService{}
 	mockSessionService.On("SetSessionDeletable", &session.SetSessionDeletableActionPayload{
 		SessionId: "SessionId",
+		CallerId:  "Session-monitor-service",
 	}).Return(nil).Once()
 
 	h := NewDomainEventHandlers(logger, mockEventDispatcher, mockKVRepository, mockSessionService)
@@ -100,7 +101,7 @@ func TestHandleEvent_RecordPodScheduleTimestamp(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockKVRepository.On("GetServerTimestamp", ctx).Return(serverTimestamp, nil)
 	mockSessionService := &session.MockISessionService{}
@@ -124,7 +125,7 @@ func TestHandleEvent_PodReady(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockSessionService := &session.MockISessionService{}
 	mockSessionService.On("GetNodeProvisionTimeStamp", nodeName).Return(nodeProvisionedTimestamp, nil)
@@ -155,7 +156,7 @@ func TestHandleEvent_PodReady_Negative_GetNodeProvisionTimeStamp(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockSessionService := &session.MockISessionService{}
 	mockSessionService.On("GetNodeProvisionTimeStamp", nodeName).Return(int64(0), session.NewInvalidStoreKeyErr("bogus"))
@@ -186,7 +187,7 @@ func TestHandleEvent_PodReady_Negative_GetPodScheduleTimeStamp(t *testing.T) {
 	})
 	mockEventDispatcher := &ddd.MockIEventDispatcher[ddd.IEvent]{}
 	mockEventDispatcher.On("Subscribe", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything).Return(nil)
+		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockKVRepository := &repository.MockIKVRepository{}
 	mockSessionService := &session.MockISessionService{}
 	mockSessionService.On("GetNodeProvisionTimeStamp", nodeName).Return(nodeProvisionedTimestamp, nil)

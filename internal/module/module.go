@@ -7,6 +7,7 @@ import (
 	"github.com/xcheng85/session-monitor-k8s/internal/config"
 	"github.com/xcheng85/session-monitor-k8s/internal/ddd"
 	"github.com/xcheng85/session-monitor-k8s/internal/repository"
+	"go.uber.org/dig"
 	"go.uber.org/zap"
 )
 
@@ -23,5 +24,5 @@ type IModuleContext interface {
 }
 
 type Module interface {
-	Startup(context.Context, IModuleContext) error
+	Startup(context.Context, IModuleContext) (*dig.Container, error)
 }

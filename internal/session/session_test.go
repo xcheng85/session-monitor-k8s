@@ -60,6 +60,7 @@ func TestSetSessionDeletable(t *testing.T) {
 	mockKVRepository.On("AddStreamEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("streamId-1", nil).Once()
 	mockPayload := SetSessionDeletableActionPayload{
 		SessionId: "sessionId",
+		CallerId:  "Session-monitor-service",
 	}
 	mockPayloadBuf, _ := json.Marshal(mockPayload)
 

@@ -12,7 +12,7 @@ import (
 
 type K8sModule struct{}
 
-func (m K8sModule) Startup(ctx context.Context, mono module.IModuleContext) error {
+func (m K8sModule) Startup(ctx context.Context, mono module.IModuleContext) (*dig.Container, error) {
 	container := dig.New()
 	container.Provide(handler.NewK8sHandler)
 	container.Provide(rest.NewK8sRouter)
@@ -25,7 +25,7 @@ func (m K8sModule) Startup(ctx context.Context, mono module.IModuleContext) erro
 	err := container.Invoke(func(r *rest.K8sRouter) error {
 		return r.Register()
 	})
-	return err
+	return container, err
 }
 
 func NewK8sModule() module.Module {

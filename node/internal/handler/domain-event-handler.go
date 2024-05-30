@@ -39,11 +39,14 @@ func NewDomainEventHandlers(
 		domain.NodeUpdateEvent,
 		domain.NodeDeleteEvent,
 		domain.NodeRecordNodeProvisionEvent,
+		domain.NodeUpdateLabelsCacheEvent,
+		domain.NodeInformerErrorEvent,
 	)
 	return handler
 }
 
 func (d domainEventHandlers[T]) HandleEvent(ctx context.Context, event T) (err error) {
+	d.logger.Sugar().Infof("HandleEvent: %s", event.EventName())
 	switch event.EventName() {
 	case domain.NodeAddEvent:
 		return d.onNodeAdded(ctx, event)
@@ -75,16 +78,21 @@ func (d domainEventHandlers[T]) onNodeDeleted(ctx context.Context, event ddd.IEv
 
 func (d domainEventHandlers[T]) onNodeUpdated(ctx context.Context, event ddd.IEvent) error {
 	payload := event.Payload().(*domain.NodeEventPayload)
-	name := payload.Node.Name
-	d.logger.Sugar().Infow("Node is updated", "Name", name)
+	name, driverVersion := payload.Node.Name, payload.Node.DriverVersion
+	d.logger.Sugar().Infow("Node is updated", "Name", name, "DriverVersion", driverVersion)
 	return nil
 }
 
 func (d domainEventHandlers[T]) onRecordNodeProvisionTimestamp(ctx context.Context, event ddd.IEvent) error {
 	payload := event.Payload().(*domain.NodeEventPayload)
 	nodeName := payload.Node.Name
+	d.logger.Sugar().Infof("onRecordNodeProvisionTimestamp: %s", nodeName)
 	// to do use repository to get server timestamp
 	serverTimestamp, err := d.repository.GetServerTimestamp(ctx)
+	if err != nil {
+		d.logger.Sugar().Infof("repository.GetServerTimestamp has error: %s", err.Error())
+	}
+
 	d.logger.Sugar().Infof("Node %s is scheduled at %d", nodeName, serverTimestamp)
 	err = d.sessionService.SetNodeProvisionTimeStamp(&session.SetNodeProvisionTimeStampActionPayload{
 		NodeName:  nodeName,
@@ -99,16 +107,19 @@ func (d domainEventHandlers[T]) onNodeUpdateLabelsCache(ctx context.Context, eve
 	agentPoolName := (*nodeLables)["agentpool"]
 	j, err := json.Marshal(nodeLables)
 	if err != nil {
+		d.logger.Sugar().Errorf("agentPoolName %s json marshal node labels has error: %s", agentPoolName, err.Error())
 		return domain.NewBadNodeLabelErr(nodeLables)
 	}
 	gpuAgentPoolSetKey := d.config.Get("app.gpu_agent_pool_set_key").(string)
-
 	// transaction
 	var numKeysAdded int64
 	numKeysAdded, err = d.repository.AddToUnsortedSet(ctx, gpuAgentPoolSetKey, &repository.Object{
 		Key:     agentPoolName,
 		Payload: string(j),
 	})
+	if err != nil {
+		d.logger.Sugar().Errorf("AddToUnsortedSet has error: %s", err.Error())
+	}
 	d.logger.Sugar().Infof("AddToUnsortedSet: %d key(s) are added", numKeysAdded)
 	return err
 }

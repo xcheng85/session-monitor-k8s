@@ -30,4 +30,5 @@ type SetSessionReadyActionPayload struct {
 // must match the definition in "https://dev.azure.com/slb-swt/slbCloud3DViz/_git/viz-3d-service-infrastructure?path=/src/models/redis/stream.ts"
 type SetSessionDeletableActionPayload struct {
 	SessionId string `json:"sessionId" binding:"required"`
+	CallerId  string `json:"callerId" binding:"required"`
 }
